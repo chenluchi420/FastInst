@@ -24,7 +24,8 @@ import detectron2.utils.comm as comm
 import torch
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
-from detectron2.data import MetadataCatalog, build_detection_train_loader
+from detectron2.data import MetadataCatalog, build_detection_train_loader, DatasetCatalog
+from detectron2.data.datasets import register_coco_instances
 from detectron2.engine import (
     DefaultTrainer,
     default_argument_parser,
@@ -56,6 +57,10 @@ from fastinst import (
     SemanticSegmentorWithTTA,
     add_fastinst_config,
 )
+
+
+register_coco_instances("table-tennis_train", {}, "datasets/table-tennis/train/annotation/annotations.json", "datasets/table-tennis/train/data")
+register_coco_instances("table-tennis_val", {}, "datasets/table-tennis/val/annotation/annotations.json", "datasets/table-tennis/val/data")
 
 
 class Trainer(DefaultTrainer):
@@ -96,11 +101,13 @@ class Trainer(DefaultTrainer):
         ]:
             if cfg.MODEL.FASTINST.TEST.PANOPTIC_ON:
                 evaluator_list.append(COCOPanopticEvaluator(dataset_name, output_folder))
+        
         # COCO
         if evaluator_type == "coco_panoptic_seg" and cfg.MODEL.FASTINST.TEST.INSTANCE_ON:
             evaluator_list.append(COCOEvaluator(dataset_name, output_dir=output_folder))
         if evaluator_type == "coco_panoptic_seg" and cfg.MODEL.FASTINST.TEST.SEMANTIC_ON:
             evaluator_list.append(SemSegEvaluator(dataset_name, distributed=True, output_dir=output_folder))
+        
         # Cityscapes
         if evaluator_type == "cityscapes_instance":
             assert (
@@ -123,9 +130,11 @@ class Trainer(DefaultTrainer):
                         torch.cuda.device_count() > comm.get_rank()
                 ), "CityscapesEvaluator currently do not work with multiple machines."
                 evaluator_list.append(CityscapesInstanceEvaluator(dataset_name))
+        
         # ADE20K
         if evaluator_type == "ade20k_panoptic_seg" and cfg.MODEL.FASTINST.TEST.INSTANCE_ON:
             evaluator_list.append(InstanceSegEvaluator(dataset_name, output_dir=output_folder))
+        
         # LVIS
         if evaluator_type == "lvis":
             return LVISEvaluator(dataset_name, output_dir=output_folder)

@@ -1,9 +1,7 @@
+To test the Model:
 python train_net.py --eval-only --num-gpus 1 --config-file configs/coco/instance-segmentation/fastinst_R50_ppm-fpn_x1_576.yaml MODEL.WEIGHTS weights/fastinst_R50_ppm-fpn_x1_576_34.9.pth
 
+To analyze the model:
 python tools/analyze_model.py --tasks speed --config-file configs/coco/instance-segmentation/fastinst_R50_ppm-fpn_x1_576.yaml MODEL.WEIGHTS weights/fastinst_R50_ppm-fpn_x1_576_34.9.pth
 
-python demo/demo.py \
-    --config-file configs/coco/instance-segmentation/fastinst_R50_ppm-fpn_x1_576.yaml \
-    --input datasets/coco/test2017/000000125300.jpg
-    --output datasets/coco/test2017/0000001253001.jpg
-    --opts MODEL.WEIGHTS weights/fastinst_R50_ppm-fpn_x1_576_34.9.pth
+python train_net.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml 
