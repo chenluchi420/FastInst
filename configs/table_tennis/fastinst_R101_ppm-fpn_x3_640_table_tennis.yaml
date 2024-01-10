@@ -1,8 +1,9 @@
 _BASE_: Fast-InstanceSegmentation_table_tennis.yaml
 MODEL:
-  WEIGHTS: "R-101.pkl"
+  # WEIGHTS: "R-101.pkl"
+  WEIGHTS: "output/fastinst_r101_ppm-fpn_bs16_50ep_x3_640_table_tennis_0110/model_final.pth"
   RESNETS:
     DEPTH: 101
   FASTINST:
     DEC_LAYERS: 3
-OUTPUT_DIR: "output/fastinst_r101_ppm-fpn_bs16_50ep_x3_640_table_tennis"
+OUTPUT_DIR: "output/fastinst_r101_ppm-fpn_bs16_50ep_x3_640_table_tennis_0110"

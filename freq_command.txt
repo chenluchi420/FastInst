@@ -4,4 +4,7 @@ python train_net.py --eval-only --num-gpus 1 --config-file configs/coco/instance
 To analyze the model:
 python tools/analyze_model.py --tasks speed --config-file configs/coco/instance-segmentation/fastinst_R50_ppm-fpn_x1_576.yaml MODEL.WEIGHTS weights/fastinst_R50_ppm-fpn_x1_576_34.9.pth
 
-python train_net.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml 
+python train_net.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml
+python demo/demo.py --config-file output/fastinst_r101_ppm-fpn_bs16_50ep_x3_640_table_tennis_0110/config.yaml --video-input f-1_Trim1.mp4 --output  output/  
+
+python demo/demo.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml --video-input f-1_Trim1.mp4 --output  output/  
