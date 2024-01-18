@@ -31,6 +31,10 @@ from fastinst import add_fastinst_config
 
 logger = logging.getLogger("detectron2")
 
+register_coco_instances("table-tennis_train", {}, "datasets/table-tennis/train/annotation/annotations.json", "datasets/table-tennis/train/data")
+register_coco_instances("table-tennis_val", {}, "datasets/table-tennis/val/annotation/annotations.json", "datasets/table-tennis/val/data")
+
+
 
 def setup(args):
     if args.config_file.endswith(".yaml"):

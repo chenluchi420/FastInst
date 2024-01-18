@@ -67,7 +67,7 @@ def get_parser():
     parser.add_argument(
         "--confidence-threshold",
         type=float,
-        default=0.5,
+        default=0.75,
         help="Minimum score for instance predictions to be shown",
     )
     parser.add_argument(
@@ -188,6 +188,7 @@ if __name__ == "__main__":
                 if cv2.waitKey(1) == 27:
                     break  # esc to quit
         video.release()
+        print(fps)
         if args.output:
             output_file.release()
         else:

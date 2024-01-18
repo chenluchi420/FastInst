@@ -1,10 +1,22 @@
 To test the Model:
-python train_net.py --eval-only --num-gpus 1 --config-file configs/coco/instance-segmentation/fastinst_R50_ppm-fpn_x1_576.yaml MODEL.WEIGHTS weights/fastinst_R50_ppm-fpn_x1_576_34.9.pth
+python train_net.py --eval-only --num-gpus 1 --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml MODEL.WEIGHTS output/fastinst_r101_ppm-fpn_bs16_50ep_x3_640_table_tennis_0117_6cls/model_final.pth
 
 To analyze the model:
-python tools/analyze_model.py --tasks speed --config-file configs/coco/instance-segmentation/fastinst_R50_ppm-fpn_x1_576.yaml MODEL.WEIGHTS weights/fastinst_R50_ppm-fpn_x1_576_34.9.pth
+python tools/analyze_model.py --tasks speed --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml MODEL.WEIGHTS output/fastinst_r101_ppm-fpn_bs16_50ep_x3_640_table_tennis_0117_6cls/model_final.pth
 
+To train a Model:
 python train_net.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml
-python demo/demo.py --config-file output/fastinst_r101_ppm-fpn_bs16_50ep_x3_640_table_tennis_0110/config.yaml --video-input f-1_Trim1.mp4 --output  output/  
 
-python demo/demo.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml --video-input f-1_Trim1.mp4 --output  output/  
+To inference video:
+python demo/demo.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml --video-input f-3_video_trim1_2.mp4 --output output/  --confidence-threshold 0.75
+
+To inference Image:
+python demo/demo.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml --input datasets/table-tennis/val/data/f-3_frame0950.jpg --output output/  
+
+
+To inference a set of Images:
+python demo/demo.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml --input datasets/table-tennis/train/data/*.jpg --output output/  
+
+MetadataCatalog.get("table-tennis_val").thing_classes = ['paddle', 'person', 'table', 'person', 'scoreboard', 'table']
+MetadataCatalog.get("table-tennis_val").thing_colors =[(255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0)]
+MetadataCatalog.get("table-tennis_val").stuff_colors =[(255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0)]

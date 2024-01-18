@@ -1,0 +1,25 @@
+Color code(In RGB):
+Green: 46 139 87 (Nothing)
+Yellow:255 215 0 (Person)
+Blue: 0 154 205 (Table)
+Red: 238 0 0 (Paddle)
+Brown: 139 115 85 (referee)
+Purple: 104 34 139 (scoreboard)
+
+1: Detectron's video visulizer(In Detectron2/utills/video_visulizer) doesn't support SEGMENTATION mode with videos, hence you have to replace the following code:
+if self._instance_mode == ColorMode.IMAGE and self.metadata.get("thing_colors"):
+            colors = [
+                [x / 255 for x in self.metadata.thing_colors[c]] for c in classes
+            ]
+            alpha = 0.8
+        else:
+            colors = None
+            alpha = 0.5
+
+under the following code(about line 108) to make sure the color won't change during inference
+labels = _create_text_labels(classes, scores, self.metadata.get("thing_classes", None))
+for more information, check https://github.com/facebookresearch/detectron2/issues/1163
+
+also, don't forget to set the  thing_classes and thing_colors at Detectron2/utills/visulizer 
+MetadataCatalog.get("table-tennis_val").thing_classes = [' ', 'person', 'table', 'paddle', 'referee', 'scoreboard']
+MetadataCatalog.get("table-tennis_val").thing_colors =[(46, 139, 87), (255, 215, 0), (0, 154, 205), (238, 0, 0), (139, 115 , 85), (104, 34, 139)]
