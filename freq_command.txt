@@ -1,5 +1,5 @@
 To test the Model:
-python train_net.py --eval-only --num-gpus 1 --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml MODEL.WEIGHTS output/fastinst_r101_ppm-fpn_bs16_50ep_x3_640_table_tennis_0117_6cls/model_final.pth
+python train_net.py --eval-only --num-gpus 1 --config-file configs/coco/instance-segmentation/fastinst_R101_ppm-fpn_x3_640.yaml MODEL.WEIGHTS weights/fastinst_R101_ppm-fpn_x3_640_38.9.pth
 
 To analyze the model:
 python tools/analyze_model.py --tasks speed --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml MODEL.WEIGHTS output/fastinst_r101_ppm-fpn_bs16_50ep_x3_640_table_tennis_0117_6cls/model_final.pth
@@ -12,7 +12,6 @@ python demo/demo.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_
 
 To inference Image:
 python demo/demo.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml --input datasets/table-tennis/val/data/f-3_frame0950.jpg --output output/  
-
 
 To inference a set of Images:
 python demo/demo.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml --input datasets/table-tennis/train/data/*.jpg --output output/  

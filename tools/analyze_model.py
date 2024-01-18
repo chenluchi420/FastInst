@@ -21,6 +21,13 @@ from detectron2.utils.analysis import (
     activation_count_operators,
     parameter_count_table,
 )
+from detectron2.data.datasets import register_coco_instances
+from detectron2.engine import (
+    DefaultTrainer,
+    default_argument_parser,
+    default_setup,
+    launch,
+)
 from detectron2.utils.logger import setup_logger
 from fvcore.nn import flop_count_table  # can also try flop_count_str
 
