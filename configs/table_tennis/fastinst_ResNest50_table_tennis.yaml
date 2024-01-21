@@ -1,0 +1,43 @@
+_BASE_: FastInst_ResNest50_table_tennis_Base.yaml
+# MODEL:
+#   # WEIGHTS: "R-101.pkl"
+#   WEIGHTS: "output/fastinst_r101_ppm-fpn_bs16_50ep_x3_640_table_tennis_0117_6cls/model_final.pth"
+#   RESNETS:
+#     DEPTH: 101
+MODEL:
+  WEIGHTS: "resnest50_detectron-255b5649.pth"
+  MASK_ON: True
+  RESNETS:
+    DEPTH: 50
+    STRIDE_IN_1X1: False
+    RADIX: 2
+    NORM: "SyncBN"
+  FPN:
+    NORM: "SyncBN"
+  ROI_HEADS:
+    NAME: CascadeROIHeads
+  ROI_BOX_HEAD:
+    NAME: "FastRCNNConvFCHead"
+    NUM_CONV: 4
+    NUM_FC: 1
+    NORM: "SyncBN"
+    CLS_AGNOSTIC_BBOX_REG: True
+  ROI_MASK_HEAD:
+    NORM: "SyncBN"
+  RPN:
+    POST_NMS_TOPK_TRAIN: 2000
+  PIXEL_MEAN: [123.68, 116.779, 103.939]
+  PIXEL_STD: [58.393, 57.12, 57.375]
+  FASTINST:
+    DEC_LAYERS: 3
+
+SOLVER:
+  IMS_PER_BATCH: 16
+  BASE_LR: 0.02    
+INPUT:
+  FORMAT: "RGB"
+TEST:
+  PRECISE_BN:
+    ENABLED: True
+  
+OUTPUT_DIR: "output/fastinst_ResNest50_table_tennis_0118"

@@ -4,7 +4,7 @@ import argparse
 import glob
 import multiprocessing as mp
 import os
-
+from datetime import datetime
 # fmt: off
 import sys
  
@@ -38,7 +38,13 @@ def setup_cfg(args):
     add_fastinst_config(cfg)
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
+    
+    # cfg.MODEL.RETINANET.SCORE_THRESH_TEST = args.confidence_threshold
+    # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = args.confidence_threshold
+    # cfg.MODEL.FASTINST.TEST.OBJECT_MASK_THRESHOLD= args.confidence_threshold
+
     cfg.freeze()
+    
     return cfg
 
 
@@ -162,10 +168,15 @@ if __name__ == "__main__":
         )
         if codec == ".mp4v":
             warnings.warn("x264 codec not available, switching to mp4v")
+
+        now = datetime.now() # current date and time
+        time = now.strftime("_%H_%M_%S")
+        time_str = str(time)
         if args.output:
             if os.path.isdir(args.output):
                 output_fname = os.path.join(args.output, basename)
-                output_fname = os.path.splitext(output_fname)[0] + file_ext
+                output_fname = os.path.splitext(output_fname)[0] + time_str + file_ext
+                print(output_fname)
             else:
                 output_fname = args.output
             assert not os.path.isfile(output_fname), output_fname
@@ -174,12 +185,14 @@ if __name__ == "__main__":
                 # some installation of opencv may not support x264 (due to its license),
                 # you can try other format (e.g. MPEG)
                 fourcc=cv2.VideoWriter_fourcc(*codec),
+                # fourcc=cv2.VideoWriter_fourcc(*"x264"),
                 fps=float(frames_per_second),
                 frameSize=(width, height),
                 isColor=True,
             )
         assert os.path.isfile(args.video_input)
-        for vis_frame in tqdm.tqdm(demo.run_on_video(video), total=num_frames):
+        # for vis_frame in tqdm.tqdm(demo.run_on_video(video), total=num_frames):
+        for vis_frame in tqdm.tqdm(demo.run_on_video(video, args.confidence_threshold), total=num_frames):
             if args.output:
                 output_file.write(vis_frame)
             else:

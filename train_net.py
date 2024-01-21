@@ -33,8 +33,8 @@ from detectron2.engine import (
     launch,
 )
 from detectron2.evaluation import (
-    CityscapesInstanceEvaluator,
-    CityscapesSemSegEvaluator,
+    # CityscapesInstanceEvaluator,
+    # CityscapesSemSegEvaluator,
     COCOEvaluator,
     COCOPanopticEvaluator,
     DatasetEvaluators,
