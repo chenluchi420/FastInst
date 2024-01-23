@@ -2,7 +2,7 @@ To test the Model:
 python train_net.py --eval-only --num-gpus 1 --config-file configs/coco/instance-segmentation/fastinst_R101_ppm-fpn_x3_640.yaml MODEL.WEIGHTS weights/fastinst_R101_ppm-fpn_x3_640_38.9.pth
 
 To analyze the model:
-python tools/analyze_model.py --tasks speed --config-file configs/table_tennis/fastinst_R101_table_tennis.yaml MODEL.WEIGHTS output/fastinst_r101_table_tennis_0117_6cls/model_final.pth
+python tools/analyze_model.py --tasks speed --config-file configs/table_tennis/fastinst_R101_table_tennis.yaml MODEL.WEIGHTS output/fastinst_r101_table_tennis_0121/model_final.pth
 
 To train a Model:
 python train_net.py --config-file configs/table_tennis/fastinst_R101_table_tennis.yaml
