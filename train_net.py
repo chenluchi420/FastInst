@@ -46,6 +46,9 @@ from detectron2.projects.deeplab import add_deeplab_config, build_lr_scheduler
 from detectron2.solver.build import maybe_add_gradient_clipping
 from detectron2.utils.logger import setup_logger
 
+#ResNest
+# from resnest.torch import resnest50
+
 # FastInst
 from fastinst import (
     COCOInstanceNewBaselineDatasetMapper,
@@ -56,6 +59,7 @@ from fastinst import (
     MaskFormerSemanticDatasetMapper,
     SemanticSegmentorWithTTA,
     add_fastinst_config,
+    # add_resnest_config,
 )
 
 
@@ -288,6 +292,8 @@ def setup(args):
     # for poly lr schedule
     add_deeplab_config(cfg)
     add_fastinst_config(cfg)
+    # add_resnest_config(cfg)  #For ResNest
+
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
     cfg.freeze()
