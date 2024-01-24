@@ -120,6 +120,7 @@ if __name__ == "__main__":
         for path in tqdm.tqdm(args.input, disable=not args.output):
             # use PIL, to be consistent with evaluation
             img = read_image(path, format="BGR")
+            
             start_time = time.time()
             predictions, visualized_output = demo.run_on_image(img)
             logger.info(
@@ -170,7 +171,7 @@ if __name__ == "__main__":
             warnings.warn("x264 codec not available, switching to mp4v")
 
         now = datetime.now() # current date and time
-        time = now.strftime("_%H_%M_%S")
+        time = now.strftime("_%Y_%m_%d_%H_%M_%S")
         time_str = str(time)
         if args.output:
             if os.path.isdir(args.output):
