@@ -1,9 +1,9 @@
 _BASE_: FastInst_R101_table_tennis_Base.yaml
 MODEL:
-  # WEIGHTS: "R-101.pkl"
-  WEIGHTS: "output/fastinst_r101_table_tennis_0121/model_final.pth"
+  WEIGHTS: "R-101.pkl"
+  # WEIGHTS: "output/fastinst_r101_table_tennis_0121/model_final.pth"
   RESNETS:
     DEPTH: 101
   FASTINST:
     DEC_LAYERS: 4
-OUTPUT_DIR: "output/fastinst_r101_table_tennis_0121"
+OUTPUT_DIR: "output/fastinst_r101_table_tennis_0124"

@@ -3,6 +3,7 @@
 """
 Modules to compute the matching cost and solve the corresponding LSAP.
 """
+import numpy as np
 import torch
 import torch.nn.functional as F
 from detectron2.projects.point_rend.point_features import point_sample
@@ -158,8 +159,8 @@ class HungarianMatcher(nn.Module):
                     + self.cost_location * cost_location
             )
             
-            
             C = C.reshape(num_queries, -1).cpu()
+            # C[C.isnan()] = 1e6
             indices.append(linear_sum_assignment(C))
 
         return [
