@@ -6,16 +6,19 @@ python tools/analyze_model.py --tasks speed --config-file configs/table_tennis/f
 
 To train a Model:
 python train_net.py --config-file configs/table_tennis/fastinst_R101_table_tennis.yaml
-python train_net.py --config-file configs/table_tennis/fastinst_ResNest50_table_tennis.yaml
+
+To train a ResNest backbone Model:
+python train_net_ResNest.py --config-file configs/ResNest/fastinst_ResNest50_table_tennis.yaml
+
 
 To inference video:
 python demo/demo.py --config-file configs/table_tennis/fastinst_R101_table_tennis.yaml --video-input f-3_video_trim1_2_2.mp4 --output output/  --confidence-threshold 0.75
 
 To inference Image:
-python demo/demo.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml --input datasets/table-tennis/val/data/f-3_frame0950.jpg --output output/  
+python demo/demo.py --config-file configs/table_tennis/fastinst_R101_table_tennis.yaml --input datasets/table-tennis/val/data/f-3_frame0950.jpg --output output/  
 
 To inference a set of Images:
-python demo/demo.py --config-file configs/table_tennis/fastinst_R101_ppm-fpn_x3_640_table_tennis.yaml --input datasets/table-tennis/train/data/*.jpg --output output/  
+python demo/demo.py --config-file configs/table_tennis/fastinst_R101_table_tennis.yaml --input datasets/table-tennis/train/data/*.jpg --output output/  
 
 MetadataCatalog.get("table-tennis_val").thing_classes = ['paddle', 'person', 'table', 'person', 'scoreboard', 'table']
 MetadataCatalog.get("table-tennis_val").thing_colors =[(255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0)]

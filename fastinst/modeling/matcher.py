@@ -160,6 +160,7 @@ class HungarianMatcher(nn.Module):
             )
             
             C = C.reshape(num_queries, -1).cpu()
+            # C = np.nan_to_num(C) #self_added
             # C[C.isnan()] = 1e6
             indices.append(linear_sum_assignment(C))
 
@@ -204,6 +205,7 @@ class HungarianMatcher(nn.Module):
             # Proposal cost matrix
             C = self.cost_class * cost_class + self.cost_location * cost_location
             C = C.reshape(proposal_size[0] * proposal_size[1], -1).cpu()
+            # C = np.nan_to_num(C) #self_added
             indices.append(linear_sum_assignment(C))
 
         return [
