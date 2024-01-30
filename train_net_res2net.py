@@ -291,6 +291,7 @@ def setup(args):
     add_deeplab_config(cfg)
     add_fastinst_config(cfg)
     
+    cfg.set_new_allowed(True)
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
     cfg.freeze()

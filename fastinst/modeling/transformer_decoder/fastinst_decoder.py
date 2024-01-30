@@ -119,6 +119,7 @@ class FastInstDecoder(nn.Module):
         return ret
 
     def forward(self, x, mask_features, targets=None):
+        # print(x)
         bs = x[0].shape[0]
         proposal_size = x[1].shape[-2:]
         pixel_feature_size = x[2].shape[-2:]
@@ -202,6 +203,8 @@ class FastInstDecoder(nn.Module):
                 predictions_class, predictions_mask, predictions_matching_index, query_locations
             )
         }
+        # print("outpit_______________")
+        # print(out)
         return out
 
     def forward_one_layer(self, query_features, pixel_features, query_pos_embeds, pixel_pos_embeds, attn_mask, i):

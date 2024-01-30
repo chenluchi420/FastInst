@@ -158,10 +158,8 @@ class HungarianMatcher(nn.Module):
                     + self.cost_dice * cost_dice
                     + self.cost_location * cost_location
             )
-            
+            # print(C)
             C = C.reshape(num_queries, -1).cpu()
-            # C = np.nan_to_num(C) #self_added
-            # C[C.isnan()] = 1e6
             indices.append(linear_sum_assignment(C))
 
         return [

@@ -22,5 +22,5 @@ from .fastinst import FastInst
 from .test_time_augmentation import SemanticSegmentorWithTTA
 
 # ResNest
-from .modeling.backbone.resnest import build_resnest_backbone, build_resnest_fpn_backbone
+# from .modeling.backbone.resnest import build_resnest_backbone
 # from .config import add_resnest_config

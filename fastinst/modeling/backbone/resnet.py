@@ -394,3 +394,4 @@ def build_resnet_vd_backbone(cfg, input_shape):
     model = ResNet(stage_blocks, layers, stem_type="deep",
                    stem_width=32, avg_down=True, norm_layer=norm)
     return model
+

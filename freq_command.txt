@@ -6,9 +6,7 @@ python tools/analyze_model.py --tasks speed --config-file configs/table_tennis/f
 
 To train a Model:
 python train_net.py --config-file configs/table_tennis/fastinst_R101_table_tennis.yaml
-
-To train a ResNest backbone Model:
-python train_net_ResNest.py --config-file configs/ResNest/fastinst_ResNest50_table_tennis.yaml
+python train_net_res2net.py --config-file configs/table_tennis_res2net/fastinst_Res2_table_tennis.yaml
 
 
 To inference video:
