@@ -5,8 +5,10 @@ To analyze the model:
 python tools/analyze_model.py --tasks speed --config-file configs/table_tennis/fastinst_R101_table_tennis.yaml MODEL.WEIGHTS output/fastinst_r101_table_tennis_0121/model_final.pth
 
 To train a Model:
-python train_net.py --config-file configs/table_tennis/fastinst_R101_table_tennis.yaml
-python train_net_res2net.py --config-file configs/table_tennis_res2net/fastinst_Res2_table_tennis.yaml
+python train_net.py --config-file configs/coco_test/resnest_COCO.yaml
+
+Test train Model:
+python train_net_copy.py --config-file configs/coco_test/fastinst_R101_ppm-fpn_x3_640.yaml
 
 
 To inference video:
@@ -18,6 +20,3 @@ python demo/demo.py --config-file configs/table_tennis/fastinst_R101_table_tenni
 To inference a set of Images:
 python demo/demo.py --config-file configs/table_tennis/fastinst_R101_table_tennis.yaml --input datasets/table-tennis/train/data/*.jpg --output output/  
 
-MetadataCatalog.get("table-tennis_val").thing_classes = ['paddle', 'person', 'table', 'person', 'scoreboard', 'table']
-MetadataCatalog.get("table-tennis_val").thing_colors =[(255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0)]
-MetadataCatalog.get("table-tennis_val").stuff_colors =[(255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0), (255, 255, 0)]

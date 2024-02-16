@@ -203,8 +203,12 @@ class HungarianMatcher(nn.Module):
             # Proposal cost matrix
             C = self.cost_class * cost_class + self.cost_location * cost_location
             C = C.reshape(proposal_size[0] * proposal_size[1], -1).cpu()
-            # C = np.nan_to_num(C) #self_added
             indices.append(linear_sum_assignment(C))
+
+            # SparseInst Matcher Code
+        #     indices = [linear_sum_assignment(c[i], maximize=True)for i, c in enumerate(C.split(sizes, -1))]
+            
+        # retrun indices
 
         return [
             (torch.as_tensor(i, dtype=torch.int64), torch.as_tensor(j, dtype=torch.int64))

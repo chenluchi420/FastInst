@@ -5,9 +5,9 @@ import torch.nn as nn
 from detectron2.layers import NaiveSyncBatchNorm, DeformConv
 from detectron2.layers import ShapeSpec, FrozenBatchNorm2d
 from detectron2.modeling import Backbone, BACKBONE_REGISTRY
-from timm.models.layers import DropBlock2d, DropPath, AvgPool2dSame
+from timm.models.layers import DropBlock2d, DropPath, AvgPool2dSame, SelectiveKernel, ConvNormAct, create_attn, SplitAttn
 from timm.models.resnet import BasicBlock, Bottleneck
-
+# from .resnest import ResNestBottleneck
 
 def get_padding(kernel_size, stride, dilation=1):
     padding = ((stride - 1) + dilation * (kernel_size - 1)) // 2
@@ -95,11 +95,173 @@ class DeformableBottleneck(nn.Module):
 
         return x
 
+class ResNestBottleneck(nn.Module):
+    """ResNet Bottleneck
+    """
+    # pylint: disable=unused-argument
+    expansion = 4
+
+    def __init__(
+            self,
+            inplanes,
+            planes,
+            stride=1,
+            downsample=None,
+            radix=1,
+            cardinality=1,
+            base_width=64,
+            avd=False,
+            avd_first=False,
+            is_first=False,
+            reduce_first=1,
+            dilation=1,
+            first_dilation=None,
+            act_layer=nn.ReLU,
+            norm_layer=nn.BatchNorm2d,
+            attn_layer=None,
+            aa_layer=None,
+            drop_block=None,
+            drop_path=None,
+    ):
+        super(ResNestBottleneck, self).__init__()
+        assert reduce_first == 1  # not supported
+        assert attn_layer is None  # not supported
+        assert aa_layer is None  # TODO not yet supported
+        assert drop_path is None  # TODO not yet supported
+
+        group_width = int(planes * (base_width / 64.)) * cardinality
+        first_dilation = first_dilation or dilation
+        if avd and (stride > 1 or is_first):
+            avd_stride = stride
+            stride = 1
+        else:
+            avd_stride = 0
+        self.radix = radix
+
+        self.conv1 = nn.Conv2d(inplanes, group_width, kernel_size=1, bias=False)
+        self.bn1 = norm_layer(group_width)
+        self.act1 = act_layer(inplace=True)
+        self.avd_first = nn.AvgPool2d(3, avd_stride, padding=1) if avd_stride > 0 and avd_first else None
+
+        if self.radix >= 1:
+            self.conv2 = SplitAttn(
+                group_width, group_width, kernel_size=3, stride=stride, padding=first_dilation,
+                dilation=first_dilation, groups=cardinality, radix=radix, norm_layer=norm_layer, drop_layer=drop_block)
+            self.bn2 = nn.Identity()
+            self.drop_block = nn.Identity()
+            self.act2 = nn.Identity()
+        else:
+            self.conv2 = nn.Conv2d(
+                group_width, group_width, kernel_size=3, stride=stride, padding=first_dilation,
+                dilation=first_dilation, groups=cardinality, bias=False)
+            self.bn2 = norm_layer(group_width)
+            self.drop_block = drop_block() if drop_block is not None else nn.Identity()
+            self.act2 = act_layer(inplace=True)
+        self.avd_last = nn.AvgPool2d(3, avd_stride, padding=1) if avd_stride > 0 and not avd_first else None
+
+        self.conv3 = nn.Conv2d(group_width, planes * 4, kernel_size=1, bias=False)
+        self.bn3 = norm_layer(planes*4)
+        self.act3 = act_layer(inplace=True)
+        self.downsample = downsample
+
+    def zero_init_last(self):
+        if getattr(self.bn3, 'weight', None) is not None:
+            nn.init.zeros_(self.bn3.weight)
+
+    def forward(self, x):
+        shortcut = x
+
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.act1(out)
+
+        if self.avd_first is not None:
+            out = self.avd_first(out)
+
+        out = self.conv2(out)
+        out = self.bn2(out)
+        out = self.drop_block(out)
+        out = self.act2(out)
+
+        if self.avd_last is not None:
+            out = self.avd_last(out)
+
+        out = self.conv3(out)
+        out = self.bn3(out)
+
+        if self.downsample is not None:
+            shortcut = self.downsample(x)
+
+        out += shortcut
+        out = self.act3(out)
+        return out
+
+class SelectiveKernelBottleneck(nn.Module):
+    expansion = 4
+
+    def __init__(
+            self,
+            inplanes,
+            planes,
+            stride=1,
+            downsample=None,
+            cardinality=1,
+            base_width=64,
+            sk_kwargs=None,
+            reduce_first=1,
+            dilation=1,
+            first_dilation=None,
+            act_layer=nn.ReLU,
+            norm_layer=nn.BatchNorm2d,
+            attn_layer=None,
+            aa_layer=None,
+            drop_block=None,
+            drop_path=None,
+    ):
+        super(SelectiveKernelBottleneck, self).__init__()
+
+        sk_kwargs = sk_kwargs or {}
+        conv_kwargs = dict(act_layer=act_layer, norm_layer=norm_layer)
+        width = int(math.floor(planes * (base_width / 64)) * cardinality)
+        first_planes = width // reduce_first
+        outplanes = planes * self.expansion
+        first_dilation = first_dilation or dilation
+
+        self.conv1 = ConvNormAct(inplanes, first_planes, kernel_size=1, **conv_kwargs)
+        self.conv2 = SelectiveKernel(
+            first_planes, width, stride=stride, dilation=first_dilation, groups=cardinality,
+            aa_layer=aa_layer, drop_layer=drop_block, **conv_kwargs, **sk_kwargs)
+        self.conv3 = ConvNormAct(width, outplanes, kernel_size=1, apply_act=False, **conv_kwargs)
+        self.se = create_attn(attn_layer, outplanes)
+        self.act = act_layer(inplace=True)
+        self.downsample = downsample
+        self.drop_path = drop_path
+
+    def zero_init_last(self):
+        if getattr(self.conv3.bn, 'weight', None) is not None:
+            nn.init.zeros_(self.conv3.bn.weight)
+
+    def forward(self, x):
+        shortcut = x
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        if self.se is not None:
+            x = self.se(x)
+        if self.drop_path is not None:
+            x = self.drop_path(x)
+        if self.downsample is not None:
+            shortcut = self.downsample(shortcut)
+        x += shortcut
+        x = self.act(x)
+        return x
 
 BLOCK_TYPE = {
     "basic": BasicBlock,
     "bottleneck": Bottleneck,
-    "deform_bottleneck": DeformableBottleneck
+    "deform_bottleneck": DeformableBottleneck,
+    "ResNestBottleneck": ResNestBottleneck,
+    "SelectiveKernelBottleneck": SelectiveKernelBottleneck
 }
 
 
@@ -392,6 +554,36 @@ def build_resnet_vd_backbone(cfg, input_shape):
             stage_blocks.append("bottleneck")
 
     model = ResNet(stage_blocks, layers, stem_type="deep",
+                   stem_width=32, avg_down=True, norm_layer=norm)
+    return model
+
+
+@BACKBONE_REGISTRY.register()
+def build_resnext_backbone(cfg, input_shape):
+    depth = cfg.MODEL.RESNETS.DEPTH
+    norm_name = cfg.MODEL.RESNETS.NORM
+    if norm_name == "FrozenBN":
+        norm = FrozenBatchNorm2d
+    elif norm_name == "SyncBN":
+        norm = NaiveSyncBatchNorm
+    else:
+        norm = nn.BatchNorm2d
+    if depth == 50:
+        layers = [3, 4, 6, 3]
+    elif depth == 101:
+        layers = [3, 4, 23, 3]
+    else:
+        raise NotImplementedError()
+
+    stage_blocks = []
+    # use_deformable = cfg.MODEL.RESNETS.DEFORM_ON_PER_STAGE
+    for idx in range(4):
+        # if use_deformable[idx]:
+        #     stage_blocks.append("deform_bottleneck")
+        # else:
+        stage_blocks.append("bottleneck")
+
+    model = ResNet(stage_blocks, layers, stem_type="deep",cardinality=32,base_width=4,
                    stem_width=32, avg_down=True, norm_layer=norm)
     return model
 

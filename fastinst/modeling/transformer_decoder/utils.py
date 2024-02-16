@@ -28,6 +28,12 @@ def _get_activation_fn(activation):
         return F.gelu
     if activation == "glu":
         return F.glu
+    if activation == "bilinear":
+        return F.bilinear
+    if activation == "rrelu":
+        return F.rrelu
+
+    
     raise RuntimeError(F"activation should be relu/gelu, not {activation}.")
 
 
@@ -107,7 +113,7 @@ class QueryProposal(nn.Module):
 class SelfAttentionLayer(nn.Module):
 
     def __init__(self, d_model, nhead, dropout=0.0,
-                 activation="relu", normalize_before=False):
+                 activation="rrelu", normalize_before=False): # try linear activation "relu" >"bilinear"
         super().__init__()
         self.self_attn = nn.MultiheadAttention(d_model, nhead, dropout=dropout)
 
